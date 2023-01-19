@@ -1,11 +1,13 @@
 package polymod.backends;
 
+import openfl.display3D.IndexBuffer3D;
 import haxe.io.Bytes;
 import polymod.backends.IBackend;
 import polymod.backends.PolymodAssets.PolymodAssetType;
 import polymod.format.ParseRules;
 import polymod.fs.PolymodFileSystem.IFileSystem;
 import polymod.util.Util;
+// import polymod.hscript.PolymodScriptClass;
 #if firetongue
 import firetongue.FireTongue;
 #end
@@ -191,10 +193,24 @@ class PolymodAssetLibrary
 		return backend.getText(id);
 	}
 
+	#if lime
+	public function loadText(id:String):lime.app.Future<String>
+	{
+		return backend.loadText(id);
+	}
+	#end
+
 	public function getBytes(id:String):Bytes
 	{
 		return backend.getBytes(id);
 	}
+
+	#if lime
+	public function loadBytes(id:String):lime.app.Future<Bytes>
+	{
+		return backend.loadBytes(id);
+	}
+	#end
 
 	public function getPath(id:String):String
 	{
@@ -217,6 +233,8 @@ class PolymodAssetLibrary
 
 		for (id in this.type.keys())
 		{
+			if (items.indexOf(id) != -1)
+				continue;
 			if (id.indexOf('_append') == 0 || id.indexOf('_merge') == 0)
 				continue;
 			if (type == null || type == BYTES || check(id, type))
@@ -352,7 +370,9 @@ class PolymodAssetLibrary
 			#end
 			var filePath = Util.pathJoin(d, id);
 			if (fileSystem.exists(filePath))
+			{
 				return true;
+			}
 		}
 		// The loop didn't find it.
 		return false;
@@ -376,32 +396,41 @@ class PolymodAssetLibrary
 	private function initExtensions()
 	{
 		extensions = new Map<String, PolymodAssetType>();
+
 		_extensionSet('mp3', AUDIO_GENERIC);
 		_extensionSet('ogg', AUDIO_GENERIC);
 		_extensionSet('wav', AUDIO_GENERIC);
+
+		_extensionSet('otf', FONT);
+		_extensionSet('ttf', FONT);
+
+		_extensionSet('bmp', IMAGE);
+		_extensionSet('gif', IMAGE);
 		_extensionSet('jpg', IMAGE);
 		_extensionSet('png', IMAGE);
-		_extensionSet('gif', IMAGE);
 		_extensionSet('tga', IMAGE);
-		_extensionSet('bmp', IMAGE);
 		_extensionSet('tif', IMAGE);
 		_extensionSet('tiff', IMAGE);
-		_extensionSet('txt', TEXT);
-		_extensionSet('xml', TEXT);
-		_extensionSet('json', TEXT);
+
 		_extensionSet('csv', TEXT);
-		_extensionSet('tsv', TEXT);
+		_extensionSet('hx', TEXT);
+		_extensionSet('hxc', TEXT);
+		_extensionSet('hxs', TEXT);
+		_extensionSet('json', TEXT);
+		_extensionSet('md', TEXT);
 		_extensionSet('mpf', TEXT);
-		_extensionSet('tsx', TEXT);
 		_extensionSet('tmx', TEXT);
+		_extensionSet('tsv', TEXT);
+		_extensionSet('tsx', TEXT);
+		_extensionSet('txt', TEXT);
 		_extensionSet('vdf', TEXT);
-		_extensionSet('ttf', FONT);
-		_extensionSet('otf', FONT);
-		_extensionSet('webm', VIDEO);
-		_extensionSet('mp4', VIDEO);
-		_extensionSet('mov', VIDEO);
+		_extensionSet('xml', TEXT);
+
 		_extensionSet('avi', VIDEO);
 		_extensionSet('mkv', VIDEO);
+		_extensionSet('mov', VIDEO);
+		_extensionSet('mp4', VIDEO);
+		_extensionSet('webm', VIDEO);
 	}
 
 	private function _extensionSet(str:String, type:PolymodAssetType)
@@ -430,10 +459,6 @@ class PolymodAssetLibrary
 			if (fileSystem.exists(d))
 			{
 				all = fileSystem.readDirectoryRecursive(d);
-			}
-			else
-			{
-				all = [];
 			}
 		}
 		catch (msg:Dynamic)

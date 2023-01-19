@@ -1,8 +1,12 @@
 package polymod.fs;
 
+import thx.semver.VersionRule;
 import haxe.io.Bytes;
 import polymod.Polymod.ModMetadata;
 
+/**
+ * Provides factory and utility functions for instantiating an IFileSystem.
+ */
 class PolymodFileSystem
 {
 	/**
@@ -13,16 +17,17 @@ class PolymodFileSystem
 	{
 		if (cls == null)
 		{
-			// We need to determine the class to instantiate.
+			// No IFileSystem provided, choose one to use as default.
 			return _detectFileSystem(params);
 		}
 		else if (Std.isOfType(cls, IFileSystem))
 		{
+			// This is an IFileSystem object, no need to instantiate.
 			return cls;
 		}
 		else if (Std.isOfType(cls, Class))
 		{
-			// Else, instantiate the provided class.
+			// This is an IFileSystem class, instantiate it with the parameters.
 			return cast Type.createInstance(cls, [params]);
 		}
 		else
@@ -38,10 +43,14 @@ class PolymodFileSystem
 	static function _detectFileSystem(params:PolymodFileSystemParams)
 	{
 		#if sys
+		// Sys/native file system.
 		return new polymod.fs.SysFileSystem(params);
 		#elseif nodefs
+		// Node file system.
 		return new polymod.fs.NodeFileSystem(params);
 		#else
+		// No compatible file system.
+		// If you're on HTML5, you should use MemoryFileSystem or ZipFileSystem.
 		return new polymod.fs.StubFileSystem(params);
 		#end
 	}
@@ -112,9 +121,11 @@ interface IFileSystem
 
 	/**
 	 * Provide a list of valid mods for this file system to load.
-	 * @return An array of mod IDs.
+	 * 
+	 * @param apiVersionRule (optional) A version query to match against the mod's API version.
+	 * @return An array of matching mods.
 	 */
-	public function scanMods():Array<String>;
+	public function scanMods(?apiVersionRule:VersionRule):Array<ModMetadata>;
 
 	/**
 	 * Provides the metadata for a given mod. Returns null if the mod does not exist.

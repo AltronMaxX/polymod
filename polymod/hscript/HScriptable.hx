@@ -2,7 +2,9 @@ package polymod.hscript;
 
 import haxe.Json;
 import polymod.Polymod;
+import polymod.util.Util;
 
+#if hscript
 /**
  * This interface triggers the execution of a macro on any elements which use the `@:hscript` annotation.
  * Adding the annotation to the function will cause the associate script to be executed.
@@ -233,10 +235,7 @@ class ScriptRunner
 
 	static inline function scriptPath(pathName:String):String
 	{
-		return haxe.io.Path.join([
-			'${PolymodConfig.scriptLibrary}:${PolymodConfig.rootPath}',
-			'$pathName${PolymodConfig.scriptExt}'
-		]);
+		return Util.pathJoin('${PolymodConfig.scriptLibrary}:${PolymodConfig.rootPath}', '$pathName${PolymodConfig.scriptExt}');
 	}
 
 	public function get(name:String, ?assetHandler:Dynamic = null):Script
@@ -284,7 +283,7 @@ class Script
 
 	public static function buildInterp():polymod.hscript._internal.PolymodInterpEx
 	{
-    // Arguments are only needed in a scripted class context.
+		// Arguments are only needed in a scripted class context.
 		return new polymod.hscript._internal.PolymodInterpEx(null, null);
 	}
 
@@ -313,3 +312,4 @@ class Script
 		};
 	}
 }
+#end

@@ -1,12 +1,14 @@
 package polymod.fs;
 
 import polymod.fs.PolymodFileSystem;
+import thx.semver.VersionRule;
+import polymod.Polymod.ModMetadata;
 
 /**
  * This stub file system returns false for all requests.
  * This is the fallback used when the desired file system can't be accessed.
  *
- * Mods WILL NOT LOAD if this is used, but asset localization will still work.
+ * Your program won't crash, but mods WILL NOT LOAD if this is used.
  */
 class StubFileSystem implements PolymodFileSystem.IFileSystem
 {
@@ -32,7 +34,7 @@ class StubFileSystem implements PolymodFileSystem.IFileSystem
 	public inline function readDirectoryRecursive(path:String)
 		return [];
 
-	public inline function scanMods()
+	public inline function scanMods(?apiVersionRule:VersionRule):Array<ModMetadata>
 		return [];
 
 	public inline function getMetadata(modId:String)
