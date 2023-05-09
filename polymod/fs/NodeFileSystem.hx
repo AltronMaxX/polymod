@@ -171,7 +171,7 @@ class NodeFileSystem implements IFileSystem
 	{
 		if (exists(modId))
 		{
-			var meta:ModMetadata = null;
+			var meta:IModMetadata = null;
 
 			var metaFile = Util.pathJoin(modId, PolymodConfig.modMetadataFile);
 			var iconFile = Util.pathJoin(modId, PolymodConfig.modIconFile);
@@ -183,7 +183,7 @@ class NodeFileSystem implements IFileSystem
 			else
 			{
 				var metaText = getFileContent(metaFile);
-				meta = ModMetadata.fromJsonStr(metaText);
+				meta = IModMetadata.fromJsonStr(metaText);
 			}
 			if (!exists(iconFile))
 			{
@@ -205,13 +205,13 @@ class NodeFileSystem implements IFileSystem
 	}
 
 	// -----------------------------------------------------------------------------------------------
-	public function scanMods(?apiVersionRule:VersionRule):Array<ModMetadata>
+	public function scanMods(?apiVersionRule:VersionRule):Array<IModMetadata>
 	{
 		if (apiVersionRule == null)
 			apiVersionRule = VersionUtil.DEFAULT_VERSION_RULE;
 
 		var dirs = readDirectory(modRoot);
-		var result:Array<ModMetadata> = [];
+		var result:Array<IModMetadata> = [];
 		for (dir in dirs)
 		{
 			var testDir = Util.pathJoin(modRoot, dir);
@@ -222,7 +222,7 @@ class NodeFileSystem implements IFileSystem
 			if (!isDirectory(testDir))
 				continue;
 
-			var meta:ModMetadata = this.getMetadata(dir);
+			var meta:IModMetadata = this.getMetadata(dir);
 
 			if (meta == null)
 				continue;

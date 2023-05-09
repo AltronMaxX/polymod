@@ -34,7 +34,7 @@ class StubFileSystem implements PolymodFileSystem.IFileSystem
 	public inline function readDirectoryRecursive(path:String)
 		return [];
 
-	public inline function scanMods(?apiVersionRule:VersionRule):Array<ModMetadata>
+	public inline function scanMods(?apiVersionRule:VersionRule):Array<IModMetadata>
 		return [];
 
 	public inline function getMetadata(modId:String)

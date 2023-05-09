@@ -9,6 +9,7 @@ import openfl.utils.AssetType;
 import openfl.utils.Assets;
 import polymod.Polymod.Framework;
 import polymod.Polymod;
+import polymod.ModMetadata.IModMetadata;
 
 using StringTools;
 
@@ -274,7 +275,7 @@ class PlayState extends FlxState
 		});
 
 		// Reload graphics before rendering again.
-		var loadedMods = results.map(function(item:ModMetadata)
+		var loadedMods = results.map(function(item:IModMetadata)
 		{
 			return item.id;
 		});

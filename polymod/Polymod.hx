@@ -136,6 +136,11 @@ typedef PolymodParams =
 	 * Defaults to false.
 	 */
 	?useScriptedClasses:Bool,
+
+	/**
+	 * (optional) Custom mod metadata class.
+	 */
+	?customModMetadata:Class<IModMetadata>, 
 }
 
 /**
@@ -207,7 +212,7 @@ class Polymod
 	 * @param params A set of parameters to use when initializing Polymod.
 	 * @return An array of metadata entries for the mods which were successfully loaded.
 	 */
-	public static function init(params:PolymodParams):Array<ModMetadata>
+	public static function init(params:PolymodParams):Array<IModMetadata>
 	{
 		if (params.errorCallback != null)
 			onError = params.errorCallback;
@@ -235,14 +240,14 @@ class Polymod
 		var fileSystem = PolymodFileSystem.makeFileSystem(params.customFilesystem, params.fileSystemParams);
 
 		// Fetch mod metadata and exclude broken mods.
-		var modsToLoad:Array<ModMetadata> = [];
+		var modsToLoad:Array<IModMetadata> = [];
 
 		for (i in 0...dirs.length)
 		{
 			if (dirs[i] != null)
 			{
 				var modId = dirs[i];
-				var meta:ModMetadata = fileSystem.getMetadata(modId);
+				var meta:IModMetadata = fileSystem.getMetadata(modId);
 
 				if (meta != null)
 				{
@@ -260,7 +265,7 @@ class Polymod
 		}
 
 		// Sort mods by dependencies.
-		var sortedModsToLoad:Array<ModMetadata> = modsToLoad;
+		var sortedModsToLoad:Array<IModMetadata> = modsToLoad;
 
 		if (!params.skipDependencyChecks)
 		{
@@ -276,7 +281,7 @@ class Polymod
 		}
 
 		// Get the file path for each mod to load, in order.
-		var sortedModPaths:Array<String> = sortedModsToLoad.map(function(meta:ModMetadata):String
+		var sortedModPaths:Array<String> = sortedModsToLoad.map(function(meta:IModMetadata):String
 		{
 			return meta.modPath;
 		});
@@ -356,7 +361,7 @@ class Polymod
 	 * 
 	 * @return A list of all mods that were successfully loaded.
 	 */
-	public static function loadMod(modId:String):Array<ModMetadata>
+	public static function loadMod(modId:String):Array<IModMetadata>
 	{
 		// Check if Polymod is loaded.
 		if (prevParams == null || assetLibrary == null)
@@ -383,7 +388,7 @@ class Polymod
 	 * 
 	 * @return A list of all mods that were successfully loaded.
 	 */
-	public static function loadMods(modIds:Array<String>):Array<ModMetadata>
+	public static function loadMods(modIds:Array<String>):Array<IModMetadata>
 	{
 		// Check if Polymod is loaded.
 		if (prevParams == null || assetLibrary == null)
@@ -410,7 +415,7 @@ class Polymod
 	 * 
 	 * @return A list of all mods that were successfully loaded.
 	 */
-	public static function loadOnlyMods(modIds:Array<String>):Array<ModMetadata>
+	public static function loadOnlyMods(modIds:Array<String>):Array<IModMetadata>
 	{
 		// Check if Polymod is loaded.
 		if (prevParams == null || assetLibrary == null)
@@ -437,7 +442,7 @@ class Polymod
 	 * 
 	 * @return A list of all mods that were successfully loaded.
 	 */
-	public static function reload():Array<ModMetadata>
+	public static function reload():Array<IModMetadata>
 	{
 		var newParams = Reflect.copy(prevParams);
 		// Keep the same file system between reloads.
@@ -456,7 +461,7 @@ class Polymod
 	 * 
 	 * @return A list of all mods that were successfully loaded.
 	 */
-	public static function unloadMod(modId:String):Array<ModMetadata>
+	public static function unloadMod(modId:String):Array<IModMetadata>
 	{
 		// Check if Polymod is loaded.
 		if (prevParams == null || assetLibrary == null)
@@ -485,7 +490,7 @@ class Polymod
 	 * 
 	 * @return A list of all mods that were successfully loaded.
 	 */
-	public static function unloadMods(modIds:Array<String>):Array<ModMetadata>
+	public static function unloadMods(modIds:Array<String>):Array<IModMetadata>
 	{
 		// Check if Polymod is loaded.
 		if (prevParams == null || assetLibrary == null)
@@ -568,9 +573,9 @@ class Polymod
 	 * @param modRoot (optional) root directory of all mods. Optional if Polymod is initialized.
 	 * @param apiVersionRule (optional) enforce a modding API version rule -- incompatible mods will not be returned
 	 * @param errorCallback (optional) callback for any errors generated during scanning
-	 * @return Array<ModMetadata>
+	 * @return Array<IModMetadata>
 	 */
-	public static function scan(?scanParams:ScanParams):Array<ModMetadata>
+	public static function scan(?scanParams:ScanParams):Array<IModMetadata>
 	{
 		if (scanParams == null)
 		{
@@ -765,202 +770,7 @@ typedef ModContributor =
  */
 typedef ModDependencies = Map<String, VersionRule>;
 
-/**
- * A type representing data about a mod, as retrieved from its metadata file.
- */
-class ModMetadata
-{
-	/**
-	 * The internal ID of the mod.
-	 */
-	public var id:String;
-
-	/**
-	 * The human-readable name of the mod.
-	 */
-	public var title:String;
-
-	/**
-	 * A short description of the mod.
-	 */
-	public var description:String;
-
-	/**
-	 * A link to the homepage for a mod.
-	 * Should provide a URL where the mod can be downloaded from.
-	 */
-	public var homepage:String;
-
-	/**
-	 * A version number for the API used by the mod.
-	 * Used to prevent compatibility issues with mods when the application changes.
-	 */
-	public var apiVersion:Version;
-
-	/**
-	 * A version number for the mod itself.
-	 * Should be provided in the Semantic Versioning format.
-	 */
-	public var modVersion:Version;
-
-	/**
-	 * The name of a license determining the terms of use for the mod.
-	 */
-	public var license:String;
-
-	/**
-	 * Binary data containing information on the mod's icon file, if it exists.
-	 * This is useful when you want to display the mod's icon in your application's mod menu.
-	 */
-	public var icon:Bytes = null;
-
-	/**
-	 * The path on the filesystem to the mod's icon file.
-	 */
-	public var iconPath:String;
-
-	/**
-	 * The path where this mod's files are stored, on the IFileSystem.
-	 */
-	public var modPath:String;
-
-	/**
-	 * `metadata` provides an optional list of keys.
-	 * These can provide additional information about the mod, specific to your application.
-	 */
-	public var metadata:Map<String, String>;
-
-	/**
-	 * A list of dependencies.
-	 * These other mods must be also be loaded in order for this mod to load,
-	 * and this mod must be loaded after the dependencies. 
-	 */
-	public var dependencies:ModDependencies;
-
-	/**
-	 * A list of dependencies.
-	 * This mod must be loaded after the optional dependencies, 
-	 * but those mods do not necessarily need to be loaded.
-	 */
-	public var optionalDependencies:ModDependencies;
-
-	/**
-	 * A deprecated field representing the mod's author.
-	 * Please use the `contributors` field instead.
-	 */
-	@:deprecated
-	public var author(get, set):String;
-
-	// author has been made a property so setting it internally doesn't throw deprecation warnings
-	var _author:String;
-
-	function get_author()
-	{
-		if (contributors.length > 0)
-		{
-			return contributors[0].name;
-		}
-		return _author;
-	}
-
-	function set_author(v):String
-	{
-		if (contributors.length == 0)
-		{
-			contributors.push({name: v});
-		}
-		else
-		{
-			contributors[0].name = v;
-		}
-		return v;
-	}
-
-	/**
-	 * A list of contributors to the mod.
-	 * Provides data about their roles as well as optional contact information.
-	 */
-	public var contributors:Array<ModContributor>;
-
-	public function new()
-	{
-		// No-op constructor.
-	}
-
-	public function toJsonStr():String
-	{
-		var json = {};
-		Reflect.setField(json, 'title', title);
-		Reflect.setField(json, 'description', description);
-		// Reflect.setField(json, 'author', _author);
-		Reflect.setField(json, 'contributors', contributors);
-		Reflect.setField(json, 'homepage', homepage);
-		Reflect.setField(json, 'api_version', apiVersion.toString());
-		Reflect.setField(json, 'mod_version', modVersion.toString());
-		Reflect.setField(json, 'license', license);
-		var meta = {};
-		for (key in metadata.keys())
-		{
-			Reflect.setField(meta, key, metadata.get(key));
-		}
-		Reflect.setField(json, 'metadata', meta);
-		return Json.stringify(json, null, '    ');
-	}
-
-	public static function fromJsonStr(str:String)
-	{
-		if (str == null || str == '')
-		{
-			Polymod.error(PARSE_MOD_META, 'Error parsing mod metadata file, was null or empty.');
-			return null;
-		}
-
-		var json = null;
-		try
-		{
-			json = haxe.Json.parse(str);
-		}
-		catch (msg:Dynamic)
-		{
-			Polymod.error(PARSE_MOD_META, 'Error parsing mod metadata file: (${msg})');
-			return null;
-		}
-
-		var m = new ModMetadata();
-		m.title = JsonHelp.str(json, 'title');
-		m.description = JsonHelp.str(json, 'description');
-		m._author = JsonHelp.str(json, 'author');
-		m.contributors = JsonHelp.arrType(json, 'contributors');
-		m.homepage = JsonHelp.str(json, 'homepage');
-		var apiVersionStr = JsonHelp.str(json, 'api_version');
-		var modVersionStr = JsonHelp.str(json, 'mod_version');
-		try
-		{
-			m.apiVersion = apiVersionStr;
-		}
-		catch (msg:Dynamic)
-		{
-			Polymod.error(PARSE_MOD_API_VERSION, 'Error parsing API version: (${msg}) ${PolymodConfig.modMetadataFile} was ${str}');
-			return null;
-		}
-		try
-		{
-			m.modVersion = modVersionStr;
-		}
-		catch (msg:Dynamic)
-		{
-			Polymod.error(PARSE_MOD_VERSION, 'Error parsing mod version: (${msg}) ${PolymodConfig.modMetadataFile} was ${str}');
-			return null;
-		}
-		m.license = JsonHelp.str(json, 'license');
-		m.metadata = JsonHelp.mapStr(json, 'metadata');
-
-		m.dependencies = JsonHelp.mapVersionRule(json, 'dependencies');
-		m.optionalDependencies = JsonHelp.mapVersionRule(json, 'optionalDependencies');
-
-		return m;
-	}
-}
+typedef ModMetadata = polymod.ModMetadata.PolymodModMetadata;
 
 /**
  * Structured data on an error that occurred during Polymod's operation.

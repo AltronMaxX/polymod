@@ -6,12 +6,13 @@ import polymod.Polymod;
 import polymod.PolymodConfig;
 import openfl.events.KeyboardEvent;
 import openfl.text.TextField;
+import polymod.ModMetadata.IModMetadata;
 
 class Main extends Sprite
 {
 	private var sim:Simulation = null;
 	private var mods:Array<String> = null;
-	private var activeMods:Array<ModMetadata> = [];
+	private var activeMods:Array<IModMetadata> = [];
 
 	public function new()
 	{

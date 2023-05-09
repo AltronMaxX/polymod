@@ -20,14 +20,14 @@ class DependencyUtil
 	 *                     If false, raise an error in these cases and return `[]`.
 	 * @return The reordered list of mods, or `[]` if an error occurred.
 	 */
-	public static function sortByDependencies(modList:Array<ModMetadata>, ?skipErrors:Bool = false):Array<ModMetadata>
+	public static function sortByDependencies(modList:Array<IModMetadata>, ?skipErrors:Bool = false):Array<IModMetadata>
 	{
 		if (skipErrors)
 		{
 			// If skipErrors is true, a mod with unmet dependencies will call Polymod.warn() and be omitted from the list.
 			var filteredMods = filterDependencies(modList);
 
-			var test = filteredMods.map(function(mod:ModMetadata)
+			var test = filteredMods.map(function(mod:IModMetadata)
 			{
 				return mod.id;
 			});
@@ -48,15 +48,15 @@ class DependencyUtil
 	/**
 	 * Given an unordered list of mods, return a list of only the mods whose dependencies are met.
 	 */
-	static function filterDependencies(modList:Array<ModMetadata>):Array<ModMetadata>
+	static function filterDependencies(modList:Array<IModMetadata>):Array<IModMetadata>
 	{
-		var result:Array<ModMetadata> = [];
+		var result:Array<IModMetadata> = [];
 
 		// Compile a map of mod dependencies.
 		var deps:ModDependencies = compileDependencies(modList);
 
 		// Check that all mods are in the mod list.
-		var relevantMods:Array<ModMetadata> = [];
+		var relevantMods:Array<IModMetadata> = [];
 		for (mod in modList)
 		{
 			if (deps.exists(mod.id))
@@ -71,7 +71,7 @@ class DependencyUtil
 			var depRule:VersionRule = deps.get(dep);
 
 			// Check that the dependency is in the mod list.
-			var depMod:ModMetadata = null;
+			var depMod:IModMetadata = null;
 			for (mod in relevantMods)
 			{
 				if (mod.id == dep)
@@ -109,13 +109,13 @@ class DependencyUtil
 	/**
 	 * Given an unordered list of mods, return true only if all dependencies are met.
 	 */
-	static function validateDependencies(modList:Array<ModMetadata>):Bool
+	static function validateDependencies(modList:Array<IModMetadata>):Bool
 	{
 		// Compile a map of mod dependencies.
 		var deps:ModDependencies = compileDependencies(modList);
 
 		// Check that all mods are in the mod list.
-		var relevantMods:Array<ModMetadata> = [];
+		var relevantMods:Array<IModMetadata> = [];
 		for (mod in modList)
 		{
 			if (deps.exists(mod.id))
@@ -130,7 +130,7 @@ class DependencyUtil
 			var depRule:VersionRule = deps.get(dep);
 
 			// Check that the dependency is in the mod list.
-			var depMod:ModMetadata = null;
+			var depMod:IModMetadata = null;
 			for (mod in relevantMods)
 			{
 				if (mod.id == dep)
@@ -168,7 +168,7 @@ class DependencyUtil
 	 * 
 	 * @param modList The list of mods to reorder.
 	 */
-	static function buildTopologyForDependencies(modList:Array<ModMetadata>, ?skipErrors = false):Array<ModMetadata>
+	static function buildTopologyForDependencies(modList:Array<IModMetadata>, ?skipErrors = false):Array<IModMetadata>
 	{
 		// Build a map of dependencies.
 		var dependencies:Map<String, Array<String>> = [];
@@ -224,12 +224,12 @@ class DependencyUtil
 		return buildTopology_Recursive(modList, dependencies, skipErrors);
 	}
 
-	static function buildTopology_Recursive(modList:Array<ModMetadata>, dependencies:Map<String, Array<String>>, ?skipErrors:Bool = false):Array<ModMetadata>
+	static function buildTopology_Recursive(modList:Array<IModMetadata>, dependencies:Map<String, Array<String>>, ?skipErrors:Bool = false):Array<IModMetadata>
 	{
 		if (modList.length == 0)
 			return [];
 
-		var result:Array<ModMetadata> = [];
+		var result:Array<IModMetadata> = [];
 
 		// Loop through the dependencies, finding the mod IDs with no dependencies.
 		var rootLevelMods:Array<String> = [];
@@ -260,7 +260,7 @@ class DependencyUtil
 			}
 		}
 
-		var childLevelMods:Array<ModMetadata> = [];
+		var childLevelMods:Array<IModMetadata> = [];
 
 		for (modData in modList)
 		{
@@ -307,7 +307,7 @@ class DependencyUtil
 	 * For example, if one mod requires `>1.2.0` of `modA` and another requires `>1.3.0` of `modA`,
 	 * the merged list will be `[modA: '>1.2.0 && >1.3.0']`.
 	 */
-	public static function compileDependencies(modList:Array<ModMetadata>):Map<String, VersionRule>
+	public static function compileDependencies(modList:Array<IModMetadata>):Map<String, VersionRule>
 	{
 		var result:Map<String, VersionRule> = [];
 

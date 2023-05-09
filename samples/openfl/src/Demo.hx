@@ -9,6 +9,7 @@ import openfl.display.Sprite;
 import openfl.text.TextField;
 import openfl.text.TextFormatAlign;
 import openfl.utils.AssetType;
+import polymod.ModMetadata.IModMetadata;
 
 class Demo extends Sprite
 {
@@ -57,7 +58,7 @@ class Demo extends Sprite
 	private function makeButtons()
 	{
 		// Using configuration provided by Polymod.init.
-		var modList:Array<ModMetadata> = Polymod.scan();
+		var modList:Array<IModMetadata> = Polymod.scan();
 		// Sort the list by id.
 		modList.sort(function(a, b):Int
 		{

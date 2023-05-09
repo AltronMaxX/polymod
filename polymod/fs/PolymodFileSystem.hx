@@ -125,12 +125,12 @@ interface IFileSystem
 	 * @param apiVersionRule (optional) A version query to match against the mod's API version.
 	 * @return An array of matching mods.
 	 */
-	public function scanMods(?apiVersionRule:VersionRule):Array<ModMetadata>;
+	public function scanMods(?apiVersionRule:VersionRule):Array<IModMetadata>;
 
 	/**
 	 * Provides the metadata for a given mod. Returns null if the mod does not exist.
 	 * @param modId The ID of the mod.
 	 * @return The mod metadata.
 	 */
-	public function getMetadata(modId:String):Null<ModMetadata>;
+	public function getMetadata(modId:String):Null<IModMetadata>;
 }

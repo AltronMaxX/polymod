@@ -69,6 +69,8 @@ typedef PolymodAssetsParams =
 	 * (optional) whether to parse and allow for initialization of classes in script files
 	 */
 	?useScriptedClasses:Bool,
+
+	?customModMetadata:IModMetadata,
 }
 
 class PolymodAssets

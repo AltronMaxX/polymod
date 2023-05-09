@@ -55,20 +55,20 @@ class SysFileSystem implements IFileSystem
 		return sys.io.File.getBytes(path);
 	}
 
-	public function scanMods(?apiVersionRule:VersionRule):Array<ModMetadata>
+	public function scanMods(?apiVersionRule:VersionRule):Array<IModMetadata>
 	{
 		if (apiVersionRule == null)
 			apiVersionRule = VersionUtil.DEFAULT_VERSION_RULE;
 
 		var dirs = readDirectory(modRoot);
-		var result:Array<ModMetadata> = [];
+		var result:Array<IModMetadata> = [];
 		for (dir in dirs)
 		{
 			var fullDir = Util.pathJoin(modRoot, dir);
 			if (!isDirectory(fullDir))
 				continue;
 
-			var meta:ModMetadata = this.getMetadata(dir);
+			var meta:IModMetadata = this.getMetadata(dir);
 
 			if (meta == null)
 				continue;
@@ -82,13 +82,13 @@ class SysFileSystem implements IFileSystem
 		return result;
 	}
 
-	public function getMetadata(modId:String)
+	public function getMetadata(modId:String):IModMetadata
 	{
 		var modPath = Util.pathJoin(modRoot, modId);
 		var test = readDirectory(modRoot);
 		if (exists(modPath))
 		{
-			var meta:ModMetadata = null;
+			var meta:IModMetadata = null;
 
 			var metaFile = Util.pathJoin(modPath, PolymodConfig.modMetadataFile);
 			var iconFile = Util.pathJoin(modPath, PolymodConfig.modIconFile);
